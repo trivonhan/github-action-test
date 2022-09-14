@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Main CI
 
 on:
   pull_request:
@@ -12,116 +12,14 @@ on:
       - feat/**
 
 jobs:
-  pre-build:
-    runs-on: ubuntu-latest
-    outputs:
-      package_manager: ${{ steps.set-output.outputs.check }}
-    steps:
-      - uses: actions/github-script@v6
-        id: ghapi
-        with:
-          result-encoding: string
-          script: |
-            try {
-              await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: "yarn.lock",
-              });
-              return 'yarn';
-            } catch (e) {}
-            try {
-              await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: "package-lock.json",
-              });
-              return 'npm';
-            } catch (e) {}
-            try {
-              await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path: "pnpm-lock.yaml",
-              });
-              return 'pnpm';
-            } catch (e) {}
-      - id: set-output
-        run: echo "::set-output name=check::${{ steps.ghapi.outputs.result }}"
-  build-yarn:
-    needs: pre-build
-    if: ${{ needs.pre-build.outputs.package_manager == 'yarn' }}
+  reusable_workflow_job:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
         node-version: [14.x, 16.x, 18.x]
       fail-fast: false
     runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+    steps: 
+      - uses: trivonhan/github-action-test/.github/workflows/nodejs.yml@master
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-      - run: yarn install --frozen-lockfile
-      - name: Prettier Format Check
-        run: yarn format
-      - name: ESLint Check
-        run: yarn lint
-      - name: Test
-        run: yarn test --passWithNoTests
-      - name: Build
-        run: yarn build
-  build-npm:
-    needs: pre-build
-    if: ${{ needs.pre-build.outputs.package_manager == 'npm' }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
-        node-version: [14.x, 16.x, 18.x]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: npm ci
-      - name: Prettier Format Check
-        run: npm run format-check
-      - name: ESLint Check
-        run: npm run lint
-      - name: Test
-        run: npm run test --if-present
-      - name: Build
-        run: npm run build
-  build-pnpm:
-    needs: pre-build
-    if: ${{ needs.pre-build.outputs.package_manager == 'pnpm' }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
-        node-version: [14.x, 16.x, 18.x]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 6.0.2
-      - run: pnpm install --frozen-lockfile
-      - name: Prettier Format Check
-        run: pnpm format
-      - name: ESLint Check
-        run: pnpm lint
-      - name: Test
-        run: pnpm test --if-present
-      - name: Build
-        run: pnpm build
+          package_manager: 'yarn'
