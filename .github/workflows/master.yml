@@ -1,15 +1,15 @@
 name: Master CI
 
 on:
-  pull_request:
-    branches:
-      - master
-      - releases/**
   push:
+    tags:
+      - v*
     branches:
       - master
-      - releases/**
+      - main
       - feat/**
+  pull_request:
+  
 jobs:
   nodejs_ci:
     uses: trivonhan/github-action-test/.github/workflows/main.yml@master

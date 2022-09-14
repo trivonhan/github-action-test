@@ -19,3 +19,6 @@ jobs:
   go_ci:
     if: ${{ inputs.language == 'go' }}
     uses: trivonhan/github-action-test/.github/workflows/go.yml@master    
+  rust_ci: 
+    if: ${{ inputs.language == 'rust' }}
+    uses: trivonhan/github-action-test/.github/workflows/rust.yml@master
