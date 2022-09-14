@@ -1,19 +1,21 @@
 name: Main CI
 
 on:
-  pull_request:
-    branches:
-      - master
-      - releases/**
-  push:
-    branches:
-      - master
-      - releases/**
-      - feat/**
+  workflow_call:
+    inputs:
+      language: 
+        required: true
+        type: string
+      package_manager:
+        required: false
+        type: string
 
 jobs:
-  reusable_workflow_job:
+  nodejs_ci:
+    if: ${{ inputs.language == 'nodejs' }}
     uses: trivonhan/github-action-test/.github/workflows/nodejs.yml@master
     with:
-      package_manager: 'pnpm'
-      
+      package_manager: ${{ inputs.package_manager }}
+  go_ci:
+    if: ${{ inputs.language == 'go' }}
+    uses: trivonhan/github-action-test/.github/workflows/go.yml@master    
