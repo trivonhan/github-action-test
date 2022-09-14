@@ -15,5 +15,5 @@ jobs:
   reusable_workflow_job:
     uses: trivonhan/github-action-test/.github/workflows/nodejs.yml@master
     with:
-      package_manager: 'yarn'
+      package_manager: 'pnpm'
       
