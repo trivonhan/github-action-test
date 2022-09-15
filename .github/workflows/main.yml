@@ -13,7 +13,7 @@ on:
 jobs:
   nodejs_ci:
     if: ${{ inputs.language == 'nodejs' }}
-    uses: trivonhan/github-action-test/.github/workflows/nodejs.yml@master
+    uses: ./.github/workflows/nodejs.yml@master
     with:
       package_manager: ${{ inputs.package_manager }}
   go_ci:
